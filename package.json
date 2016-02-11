@@ -1,0 +1,25 @@
+{
+  "name": "webdriverio-client",
+  "version": "0.1.0",
+  "description": "The client part of the e2e testing framework",
+  "scripts": {
+    "test": "npm test",
+    "e2e-test": "scripts/run_e2e_tests.sh",
+    "update_screenshots": "scripts/remote_e2e_test update_screenshots"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ciena-blueplanet/webdriverio-client.git"
+  },
+  "keywords": [
+    "webdriverio",
+    "e2e",
+    "testing"
+  ],
+  "author": "Nagarajan (derived from Beaker by Peter Banka and Adam Meadows)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ciena-blueplanet/webdriverio-client/issues"
+  },
+  "homepage": "https://github.com/ciena-blueplanet/webdriverio-client#readme"
+}
