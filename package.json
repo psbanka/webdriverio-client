@@ -22,5 +22,11 @@
   "bugs": {
     "url": "https://github.com/ciena-blueplanet/webdriverio-client/issues"
   },
-  "homepage": "https://github.com/ciena-blueplanet/webdriverio-client#readme"
+  "homepage": "https://github.com/ciena-blueplanet/webdriverio-client#readme",
+  "dependencies": {
+    "lodash": "^4.3.0",
+    "minimist": "^1.2.0",
+    "q": "^1.4.1",
+    "sleep": "^3.0.1"
+  }
 }

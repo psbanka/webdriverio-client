@@ -1,4 +1,2 @@
 npm-debug.log
-test.sh
-
-tests/e2e/test-config.json
+node_modules
