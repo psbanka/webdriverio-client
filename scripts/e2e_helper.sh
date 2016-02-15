@@ -1,11 +1,21 @@
 #!/bin/bash
 
-TEST_PORT=`perl -MSocket -le 'socket S, PF_INET, SOCK_STREAM,getprotobyname("tcp"); \$\$port = int(rand(1080))+1080; ++\$\$port until bind S, sockaddr_in(\$\$port,inet_aton("127.1")); print \$\$port'`
+WEBDRIVERIO_SERVER=$2
+BUILD_OUTPUT_DIR=$3
+E2E_TESTS_DIR=$4
+
 TEST_CONFIG="$E2E_TESTS_DIR/test-config.json"
+
+TEST_PORT=`perl -MSocket -le 'socket S, PF_INET, SOCK_STREAM,getprotobyname("tcp"); \$\$port = int(rand(1080))+1080; ++\$\$port until bind S, sockaddr_in(\$\$port,inet_aton("127.1")); print \$\$port'`
 HOSTNAME="localhost"
 SELENIUM_HOST="localhost"
 SELENIUM_PORT=4444
 SELENIUM_BROWSER="chrome"
+BASEDIR=$(dirname $0)
+
+export WEBDRIVERIO_SERVER
+export BUILD_OUTPUT_DIR
+export E2E_TESTS_DIR
 
 function create_config {
   echo "{" > $TEST_CONFIG
@@ -47,7 +57,7 @@ function do_remote_e2e_test {
   clean_screenshots
   create_config
   echo "webdriver server : $WEBDRIVERIO_SERVER"
-  scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS
+  ./node_modules/webdriverio-client/scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS
 }
 
 function update_screenshots {
@@ -63,8 +73,5 @@ if [ "$1" = "update_screenshots" ]; then
 fi
 
 if [ "$1" = "remote_e2e_test" ]; then
-  export WEBDRIVERIO_SERVER=$2
-  export BUILD_OUTPUT_DIR=$3
-  export E2E_TESTS_DIR=$4
   remote_e2e_test
 fi
