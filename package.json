@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "The client part of the e2e testing framework",
   "scripts": {
-    "test": "npm test",
+    "test": "npm test"
   },
   "bin": {
     "wdio-client": "./scripts/e2e_helper.sh"
