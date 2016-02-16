@@ -1,10 +1,5 @@
 #!/bin/bash
 
-WEBDRIVERIO_SERVER=$2
-BUILD_OUTPUT_DIR=$3
-E2E_TESTS_DIR=$4
-
-TEST_CONFIG="$E2E_TESTS_DIR/test-config.json"
 
 TEST_PORT=`perl -MSocket -le 'socket S, PF_INET, SOCK_STREAM,getprotobyname("tcp"); \$\$port = int(rand(1080))+1080; ++\$\$port until bind S, sockaddr_in(\$\$port,inet_aton("127.1")); print \$\$port'`
 HOSTNAME="localhost"
@@ -13,9 +8,6 @@ SELENIUM_PORT=4444
 SELENIUM_BROWSER="chrome"
 BASEDIR=$(dirname $0)
 
-export WEBDRIVERIO_SERVER
-export BUILD_OUTPUT_DIR
-export E2E_TESTS_DIR
 
 function create_config {
   echo "{" > $TEST_CONFIG
@@ -35,7 +27,6 @@ function create_config {
 
 }
 
-SCREENSHOTS_DIR="$E2E_TESTS_DIR/screenshots"
 
 function clean_screenshots {
   echo "Removing everything but *.baseline.png files from $SCREENSHOTS_DIR"
@@ -48,10 +39,12 @@ function cleanup_existing_screenshots {
 	git checkout $SCREENSHOTS_DIR || echo "Not using git"
 }
 
+
 function remote_e2e_test {
   do_remote_e2e_test
   cleanup_existing_screenshots
 }
+
 
 function do_remote_e2e_test {
   clean_screenshots
@@ -59,6 +52,7 @@ function do_remote_e2e_test {
   echo "webdriver server : $WEBDRIVERIO_SERVER"
   ./node_modules/webdriverio-client/scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS
 }
+
 
 function update_screenshots {
   for i in `find $E2E_TESTS_DIR/screenshots -name '*.regression.png'`
@@ -69,9 +63,23 @@ function update_screenshots {
 }
 
 if [ "$1" = "update_screenshots" ]; then
+  E2E_TESTS_DIR=$2
+  SCREENSHOTS_DIR="$E2E_TESTS_DIR/screenshots"
   update_screenshots
 fi
 
 if [ "$1" = "remote_e2e_test" ]; then
+  WEBDRIVERIO_SERVER=$2
+  BUILD_OUTPUT_DIR=$3
+  E2E_TESTS_DIR=$4
+
+  SCREENSHOTS_DIR="$E2E_TESTS_DIR/screenshots"
+  TEST_CONFIG="$E2E_TESTS_DIR/test-config.json"
+
+  export WEBDRIVERIO_SERVER
+  export BUILD_OUTPUT_DIR
+  export E2E_TESTS_DIR
+
+
   remote_e2e_test
 fi
