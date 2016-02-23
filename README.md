@@ -1,7 +1,7 @@
-[ci-img]: https://travis-ci.org/ciena-blueplanet/webdriverio-client.svg "Build Status"
+[ci-img]: https://img.shields.io/travis/ciena-blueplanet/webdriverio-client.svg "Travis CI Build Status"
 [ci-url]: https://travis-ci.org/ciena-blueplanet/webdriverio-client
 
-[cov-img]: https://coveralls.io/repos/github/ciena-blueplanet/webdriverio-client/badge.svg?branch=master "Code Coverage"
+[cov-img]: https://img.shields.io/coveralls/ciena-blueplanet/webdriverio-client.svg "Coveralls Code Coverage"
 [cov-url]: https://coveralls.io/github/ciena-blueplanet/webdriverio-client
 
 [npm-img]: https://img.shields.io/npm/v/webdriverio-client.svg "NPM Version"
