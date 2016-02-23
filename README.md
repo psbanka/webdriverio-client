@@ -1,3 +1,13 @@
+[ci-img]: https://img.shields.io/travis/ciena-blueplanet/webdriverio-client.svg "Travis CI Build Status"
+[ci-url]: https://travis-ci.org/ciena-blueplanet/webdriverio-client
+
+[cov-img]: https://img.shields.io/coveralls/ciena-blueplanet/webdriverio-client.svg "Coveralls Code Coverage"
+[cov-url]: https://coveralls.io/github/ciena-blueplanet/webdriverio-client
+
+[npm-img]: https://img.shields.io/npm/v/webdriverio-client.svg "NPM Version"
+[npm-url]: https://www.npmjs.com/package/webdriverio-client
+
+
 # webdriverio-client
 
 This is a client for the  [webdriverio-server](https://github.com/ciena-blueplanet/webdriverio-server).
@@ -26,11 +36,13 @@ In these instructions, we assume that the fully built application package is pla
 
 First, install `webdriverio-client` and also add it to the devDependencies.
 
-    npm install webdriverio-client --save-dev
+```bash
+npm install webdriverio-client --save-dev
+```
 
 Now, we will setup some command shortcuts for e2e testing. Edit `package.json` and add the following 2 command to the scripts section (create the scripts sections if its missing)...
 
-```
+```json
   "scripts": {
     "e2e-test": "wdio-client remote_e2e_test serverip:3000 dist tests/e2e",
     "update-screenshots": "wdio-client update_screenshots"
@@ -41,7 +53,7 @@ The first command `e2e-test` passes 4 arguments to the `wdio-client` script - `r
 
 We will now create the directory structure required for the e2e tests, screenshots and jasmine config file.
 
-```
+```bash
 mkdir tests
 mkdir tests/e2e
 mkdir tests/e2e/screenshots
@@ -49,7 +61,7 @@ mkdir tests/e2e/screenshots
 
 Create `tests/e2e/jasmine.json` and add the following...
 
-```
+```json
 {
     "spec_dir": "tests",
     "spec_files": [
@@ -67,7 +79,7 @@ Also, add the following to `.gitignore`
 ### Writing tests
 Now, we are ready to create an e2e test. Create `tests/e2e/main-spec.js` and paste the following...
 
-```
+```javascript
 var webdriverio = require('webdriverio');
 var webdrivercss = require('webdrivercss');
 var testUtils = require('../../testUtils/utils').e2e
@@ -117,7 +129,7 @@ Since this test executes on the `webdriverio-server`, the dependencies only need
 
 To execute e2e tests...
 
-```
+```bash
 npm run e2e-test
 ```
 
@@ -125,6 +137,6 @@ If tests fail because of a mismatch in screenshots, you can inspect the differen
 
 If the new screenshots are accurate, you can update your reference screenshots by running
 
-```
+```bash
 npm run update-screenshots
 ```
