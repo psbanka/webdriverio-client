@@ -72,9 +72,11 @@ Create `tests/e2e/jasmine.json` and add the following...
 
 Also, add the following to `.gitignore`
 
-    test.tar.gz
-    tests/e2e/test-config.json
-    tests/e2e/screenshots/diff
+```
+test.tar.gz
+tests/e2e/test-config.json
+tests/e2e/screenshots/diff
+```
 
 ### Writing tests
 Now, we are ready to create an e2e test. Create `tests/e2e/main-spec.js` and paste the following...
