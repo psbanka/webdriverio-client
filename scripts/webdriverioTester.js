@@ -224,8 +224,8 @@ const ns = {
         if (results.exitCode === 0) {
           console.log('Tests Pass.')
         } else {
-          console.error('throwing cli error: ' + results.exitCode)
-          throw createCliError('ERRORS Encountered.', results.exitCode)
+          console.log('Tests FAILED')
+          process.exit(1)
         }
       })
   },
