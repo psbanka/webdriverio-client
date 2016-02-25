@@ -23,19 +23,6 @@ const argv = require('minimist')(process.argv.slice(2), {
 })
 
 /**
- * Create a CliError which will be thrown
- * @param {String} message - the error message
- * @param {Number} [exitCode] - the exit code for CLI command
- * @returns {cliErrorObject} object with the error msg and exit code
- */
-function createCliError (message, exitCode) {
-  return {
-    message: message,
-    exitCode: exitCode
-  }
-}
-
-/**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
  * @param {*} resolution - what to resolve the promise with
  * @returns {Promise} the promise
