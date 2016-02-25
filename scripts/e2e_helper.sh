@@ -7,7 +7,7 @@ SELENIUM_HOST="localhost"
 SELENIUM_PORT=4444
 SELENIUM_BROWSER="chrome"
 BASEDIR=$(dirname $0)
-
+TEST_RESULT=0
 
 function create_config {
   echo "{" > $TEST_CONFIG
@@ -50,7 +50,7 @@ function do_remote_e2e_test {
   clean_screenshots
   create_config
   echo "webdriver server : $WEBDRIVERIO_SERVER"
-  ./node_modules/webdriverio-client/scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS
+  ./node_modules/webdriverio-client/scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS || TEST_RESULT=1
 }
 
 
@@ -82,4 +82,5 @@ if [ "$1" = "remote_e2e_test" ]; then
 
 
   remote_e2e_test
+  exit $TEST_RESULT
 fi
