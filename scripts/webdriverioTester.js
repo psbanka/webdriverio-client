@@ -16,6 +16,7 @@
 const _ = require('lodash')
 const Q = require('q')
 const path = require('path')
+const fs = require('fs')
 const exec = require('child_process').exec
 const sleep = require('sleep')
 const argv = require('minimist')(process.argv.slice(2), {
@@ -82,25 +83,53 @@ const ns = {
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
 
-    const cmd = [
+    const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
+    let configFile
+    try {
+      configFile = JSON.parse(fs.readFileSync(configDir))
+    } catch (e) {
+      throw new Error('You must have a config.json file in the tests/e2e directory. Please visit https://github.com/pastorsj/webdriverio-server/blob/routes-token/CONFIGURATION.md\n\n')
+    }
+    if (!configFile.username || !configFile.token) {
+      throw new Error('Your config.json file must contain a valid username and token. Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena.\n\n')
+    }
+
+    const cmd1 = [
       'curl',
-      '-s',
-      '-F',
-      '"tarball=@test.tar.gz"',
-      '-F',
-      '"entry-point=' + process.env['BUILD_OUTPUT_DIR'] + '/"',
-      '-F',
-      '"tests-folder=' + process.env['E2E_TESTS_DIR'] + '"',
-      server + '/'
+      '-H',
+      '\"username: ' + configFile.username + '\"',
+      '-H',
+      '\"token: ' + configFile.token + '\"',
+      server + '/authconfig'
     ]
 
-    console.log('Running command: ' + cmd.join(' '))
+    console.log('Running command: ' + cmd1.join(' '))
 
-    return this.exec(cmd.join(' ')).then((res) => {
-      const stdout = res[0]
-      const timestamp = stdout.toString()
-      console.log('TIMESTAMP: ' + timestamp)
-      return timestamp
+    return this.exec(cmd1.join(' ')).then((res) => {
+      if(res[0] === configFile.token) {
+        const cmd = [
+          'curl',
+          '-s',
+          '-F',
+          '"tarball=@test.tar.gz"',
+          '-F',
+          '"entry-point=' + process.env['BUILD_OUTPUT_DIR'] + '/"',
+          '-F',
+          '"tests-folder=' + process.env['E2E_TESTS_DIR'] + '"',
+          server + '/'
+        ]
+        console.log('Running command: ' + cmd.join(' '))
+
+        return this.exec(cmd.join(' ')).then((res) => {
+          const stdout = res[0]
+          const timestamp = stdout.toString()
+          console.log('Server Response/Timestamp: ' + timestamp)
+          this.exec()
+          return timestamp
+        })
+      } else {
+        throw new Error(res[0] + '\n\n')
+      }
     })
   },
 
