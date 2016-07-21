@@ -22,6 +22,7 @@ const sleep = require('sleep')
 const argv = require('minimist')(process.argv.slice(2), {
   'boolean': 'app'
 })
+const TOKEN_REVOKED = '~'
 
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
@@ -84,13 +85,14 @@ const ns = {
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
     const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
-    let configFile = {username: 'travis', token: '~'}
+    let configFile = {}
     try {
       configFile = JSON.parse(fs.readFileSync(configDir))
     } catch (e) {
       console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
     }
-    if (configFile.username === 'travis' || !configFile.username || !configFile.token) {
+    _.defaults(configFile, {username: 'travis', token: TOKEN_REVOKED})
+    if (configFile.username === 'travis') {
       console.log(`Your config.json file must contain a valid username and token.
       Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
     }
