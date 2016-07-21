@@ -59,7 +59,8 @@ const ns = {
    * @returns {Promise} resolved when done
    */
   tarUpAppAndTestsDirectory (extras) {
-    let cmd = ['tar', '--exclude="*.map"', '-czf', 'test.tar.gz', process.env['E2E_TESTS_DIR'], process.env['BUILD_OUTPUT_DIR']]
+    let cmd = ['tar', '--exclude="*.map"', '-czf', 'test.tar.gz',
+               process.env['E2E_TESTS_DIR'], process.env['BUILD_OUTPUT_DIR']]
     cmd = cmd.concat(extras)
 
     return this.exec(cmd.join(' '))
@@ -83,23 +84,24 @@ const ns = {
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
     const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
-    let configFile
+    let configFile = {username: 'travis', token: '~'}
     try {
       configFile = JSON.parse(fs.readFileSync(configDir))
     } catch (e) {
-      throw new Error('You must have a config.json file in the tests/e2e directory. Please visit https://github.com/pastorsj/webdriverio-server/blob/routes-token/CONFIGURATION.md\n\n')
+      console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
     }
     if (!configFile.username || !configFile.token) {
-      throw new Error('Your config.json file must contain a valid username and token. Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena.\n\n')
+      console.log(`Your config.json file must contain a valid username and token.
+      Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
     }
 
     const cmd = [
       'curl',
       '-s',
       '-H',
-      '\"username: ' + configFile.username + '\"',
+      '"username: ' + configFile.username + '"',
       '-H',
-      '\"token: ' + configFile.token + '\"',
+      '"token: ' + configFile.token + '"',
       '-F',
       '"tarball=@test.tar.gz"',
       '-F',
