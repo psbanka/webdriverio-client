@@ -16,11 +16,13 @@
 const _ = require('lodash')
 const Q = require('q')
 const path = require('path')
+const fs = require('fs')
 const exec = require('child_process').exec
 const sleep = require('sleep')
 const argv = require('minimist')(process.argv.slice(2), {
   'boolean': 'app'
 })
+const TOKEN_REVOKED = '~'
 
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
@@ -58,7 +60,8 @@ const ns = {
    * @returns {Promise} resolved when done
    */
   tarUpAppAndTestsDirectory (extras) {
-    let cmd = ['tar', '--exclude="*.map"', '-czf', 'test.tar.gz', process.env['E2E_TESTS_DIR'], process.env['BUILD_OUTPUT_DIR']]
+    let cmd = ['tar', '--exclude="*.map"', '-czf', 'test.tar.gz',
+               process.env['E2E_TESTS_DIR'], process.env['BUILD_OUTPUT_DIR']]
     cmd = cmd.concat(extras)
 
     return this.exec(cmd.join(' '))
@@ -81,10 +84,26 @@ const ns = {
    */
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
+    const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
+    let configFile = {}
+    try {
+      configFile = JSON.parse(fs.readFileSync(configDir))
+    } catch (e) {
+      console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
+    }
+    _.defaults(configFile, {username: 'travis', token: TOKEN_REVOKED})
+    if (configFile.username === 'travis') {
+      console.log(`Your config.json file must contain a valid username and token.
+      Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
+    }
 
     const cmd = [
       'curl',
       '-s',
+      '-H',
+      '"username: ' + configFile.username + '"',
+      '-H',
+      '"token: ' + configFile.token + '"',
       '-F',
       '"tarball=@test.tar.gz"',
       '-F',
@@ -93,13 +112,15 @@ const ns = {
       '"tests-folder=' + process.env['E2E_TESTS_DIR'] + '"',
       server + '/'
     ]
-
     console.log('Running command: ' + cmd.join(' '))
 
     return this.exec(cmd.join(' ')).then((res) => {
-      const stdout = res[0]
-      const timestamp = stdout.toString()
-      console.log('TIMESTAMP: ' + timestamp)
+      const timestamp = res[0]
+      this.exec()
+      if (isNaN(timestamp)) {
+        throw new Error('The server responded with: ' + timestamp)
+      }
+      console.log('Server Response/Timestamp: ' + timestamp)
       return timestamp
     })
   },
