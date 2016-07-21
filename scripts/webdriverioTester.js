@@ -90,7 +90,7 @@ const ns = {
     } catch (e) {
       console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
     }
-    if (!configFile.username || !configFile.token) {
+    if (configFile.username === 'travis' || !configFile.username || !configFile.token) {
       console.log(`Your config.json file must contain a valid username and token.
       Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
     }
