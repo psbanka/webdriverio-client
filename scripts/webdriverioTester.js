@@ -82,7 +82,6 @@ const ns = {
    */
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
-
     const cmd = [
       'curl',
       '-s',
