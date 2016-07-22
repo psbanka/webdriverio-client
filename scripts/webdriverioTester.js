@@ -103,9 +103,9 @@ const ns = {
         console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
         console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
         console.log('TRAVIS_BUILD_NUMBER: ' + process.env['TRAVIS_BUILD_NUMBER'])
-        travis.builds(process.env['TRAVIS_BUILD_NUMBER']).get((err, res) => {
+        travis.builds(process.env['TRAVIS_BUILD_ID']).get((err, res) => {
           if (err) {
-            reject('Travis API Error: ' + err)
+            reject('Travis API Error: ' + JSON.stringify(err, null, 2))
           } else {
             console.log(JSON.stringify(res, null, 2))
             resolve(configFile)
