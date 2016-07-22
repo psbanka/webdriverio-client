@@ -103,6 +103,8 @@ const ns = {
         let repo = process.env['TRAVIS_REPO_SLUG']
         let user = repo.substring(0, repo.indexOf('/'))
         repo = repo.substring(repo.indexOf('/') + 1)
+        console.log('USER: ' + user)
+        console.log('REPO: ' + repo)
         let github = new GitHubAPI({
           debug: false,
           protocol: 'https',
