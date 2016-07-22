@@ -24,7 +24,7 @@ const argv = require('minimist')(process.argv.slice(2), {
 })
 const TOKEN_REVOKED = '~'
 
-const GitHubAPI = require('github')
+const http = require('http')
 
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
@@ -100,33 +100,29 @@ const ns = {
         console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
         console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
         console.log('TRAVIS_BUILD_NUMBER: ' + process.env['TRAVIS_BUILD_NUMBER'])
-        let repo = process.env['TRAVIS_REPO_SLUG']
-        let user = repo.substring(0, repo.indexOf('/'))
-        repo = repo.substring(repo.indexOf('/') + 1)
+        let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
+        let user = repo[0]
+        repo = repo[1]
         console.log('USER: ' + user)
         console.log('REPO: ' + repo)
-        let github = new GitHubAPI({
-          debug: false,
-          protocol: 'https',
-          host: 'api.github.com',
-          timeout: 5000
-        })
-        github.gitdata.getCommit({
-          user,
-          repo,
-          sha: process.env['TRAVIS_COMMIT']
-        }, (err, res) => {
-          console.log('RESULT: \n' + JSON.stringify(res, null, 2))
-          if (err) {
-            reject(configFile)
-          } else {
-            let author = res.author.email
+        const options = {
+          host: 'https://api.github.com',
+          path: `/repos/${user}/${repo}/git/commits/${process.env['TRAVIS_COMMIT']}`,
+          method: 'GET'
+        }
+        const req = http.request(options, (res) => {
+          res.on('data', (data) => {
+            console.log('RESULT: \n' + JSON.stringify(data, null, 2))
+            let author = data.author.email
             console.log('author ' + author)
             author = author.substring(0, author.indexOf('@'))
             configFile.username = author
             console.log('Authors Username' + configFile.username)
             resolve(configFile)
-          }
+          })
+        })
+        req.on('error', (err) => {
+          reject(err)
         })
       } else {
         resolve(configFile)
