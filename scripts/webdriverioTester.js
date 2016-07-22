@@ -24,10 +24,7 @@ const argv = require('minimist')(process.argv.slice(2), {
 })
 const TOKEN_REVOKED = '~'
 
-var Travis = require('travis-ci')
-var travis = new Travis({
-  version: '2.0.0'
-})
+const GitHubAPI = require('github')
 
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
@@ -104,14 +101,31 @@ const ns = {
         console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
         console.log('TRAVIS_BUILD_NUMBER: ' + process.env['TRAVIS_BUILD_NUMBER'])
         let repo = process.env['TRAVIS_REPO_SLUG']
-        if (repo) {
-          repo = repo.substring(0, repo.indexOf('/'))
-          configFile.username = repo
-          console.log('Username: ' + configFile.username)
-          resolve(configFile)
-        } else {
-          reject(configFile)
-        }
+        let user = repo.substring(0, repo.indexOf('/'))
+        repo = repo.substring(repo.indexOf('/') + 1)
+        let github = new GitHubAPI({
+          debug: false,
+          protocol: 'https',
+          host: 'api.github.com',
+          timeout: 5000
+        })
+        github.gitdata.getCommit({
+          user,
+          repo,
+          sha: process.env['TRAVIS_COMMIT']
+        }, (err, res) => {
+          console.log('RESULT: \n' + JSON.stringify(res, null, 2))
+          if (err) {
+            reject(configFile)
+          } else {
+            let author = res.author.email
+            console.log('author ' + author)
+            author = author.substring(0, author.indexOf('@'))
+            configFile.username = author
+            console.log('Authors Username' + configFile.username)
+            resolve(configFile)
+          }
+        })
       } else {
         resolve(configFile)
       }
