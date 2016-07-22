@@ -82,6 +82,41 @@ const ns = {
     return this.tarUpAppAndTestsDirectory(extras)
   },
 
+  extractConfig () {
+    return new Promise((resolve, reject) => {
+      const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
+      let configFile = {}
+      try {
+        configFile = JSON.parse(fs.readFileSync(configDir))
+      } catch (e) {
+        console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
+      }
+      _.defaults(configFile, {username: 'travis', token: TOKEN_REVOKED})
+      if (configFile.username === 'travis') {
+        console.log(`Your config.json file must contain a valid username and token.
+        Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
+        console.log('TRAVIS: ' + process.env['TRAVIS'])
+        console.log('TRAVIS_SECURE_ENV_VARS: ' + process.env['TRAVIS_SECURE_ENV_VARS'])
+        console.log('USER: ' + process.env['USER'])
+        console.log('TRAVIS_BRANCH: ' + process.env['TRAVIS_BRANCH'])
+        console.log('TRAVIS_COMMIT: ' + process.env['TRAVIS_COMMIT'])
+        console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
+        console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
+        console.log('TRAVIS_BUILD_NUMBER: ' + process.env['TRAVIS_BUILD_NUMBER'])
+        travis.builds(process.env['TRAVIS_BUILD_NUMBER']).get((err, res) => {
+          if (err) {
+            reject('Travis API Error: ' + err)
+          } else {
+            console.log(JSON.stringify(res, null, 2))
+            resolve(configFile)
+          }
+        })
+      } else {
+        resolve(configFile)
+      }
+    })
+  },
+
   /**
    * Submit the tarball for test
    * @param {String} server - the protocol/host/port of the server
@@ -89,59 +124,37 @@ const ns = {
    */
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
-    const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
-    let configFile = {}
-    try {
-      configFile = JSON.parse(fs.readFileSync(configDir))
-    } catch (e) {
-      console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
-    }
-    _.defaults(configFile, {username: 'travis', token: TOKEN_REVOKED})
-    if (configFile.username === 'travis') {
-      console.log(`Your config.json file must contain a valid username and token.
-      Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
-      console.log('TRAVIS: ' + process.env['TRAVIS'])
-      console.log('TRAVIS_SECURE_ENV_VARS: ' + process.env['TRAVIS_SECURE_ENV_VARS'])
-      console.log('USER: ' + process.env['USER'])
-      console.log('TRAVIS_BRANCH: ' + process.env['TRAVIS_BRANCH'])
-      console.log('TRAVIS_COMMIT: ' + process.env['TRAVIS_COMMIT'])
-      console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
-      console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
-      travis.builds(process.env['TRAVIS_BUILD_NUMBER']).get((err, res) => {
-        if (err) {
-          console.error('Travis API Error: ' + err)
-        } else {
-          console.log(JSON.stringify(res, null, 2))
+    return this.extractConfig()
+    .then((configFile) => {
+      const cmd = [
+        'curl',
+        '-s',
+        '-H',
+        '"username: ' + configFile.username + '"',
+        '-H',
+        '"token: ' + configFile.token + '"',
+        '-F',
+        '"tarball=@test.tar.gz"',
+        '-F',
+        '"entry-point=' + process.env['BUILD_OUTPUT_DIR'] + '/"',
+        '-F',
+        '"tests-folder=' + process.env['E2E_TESTS_DIR'] + '"',
+        server + '/'
+      ]
+      console.log('Running command: ' + cmd.join(' '))
+
+      return this.exec(cmd.join(' ')).then((res) => {
+        const timestamp = res[0]
+        this.exec()
+        if (isNaN(timestamp)) {
+          throw new Error('The server responded with: ' + timestamp)
         }
+        console.log('Server Response/Timestamp: ' + timestamp)
+        return timestamp
       })
-    }
-
-
-    const cmd = [
-      'curl',
-      '-s',
-      '-H',
-      '"username: ' + configFile.username + '"',
-      '-H',
-      '"token: ' + configFile.token + '"',
-      '-F',
-      '"tarball=@test.tar.gz"',
-      '-F',
-      '"entry-point=' + process.env['BUILD_OUTPUT_DIR'] + '/"',
-      '-F',
-      '"tests-folder=' + process.env['E2E_TESTS_DIR'] + '"',
-      server + '/'
-    ]
-    console.log('Running command: ' + cmd.join(' '))
-
-    return this.exec(cmd.join(' ')).then((res) => {
-      const timestamp = res[0]
-      this.exec()
-      if (isNaN(timestamp)) {
-        throw new Error('The server responded with: ' + timestamp)
-      }
-      console.log('Server Response/Timestamp: ' + timestamp)
-      return timestamp
+    })
+    .catch((err) => {
+      throw new Error('The server responded with: ' + err)
     })
   },
 
