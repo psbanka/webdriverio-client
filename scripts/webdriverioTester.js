@@ -22,6 +22,11 @@ const argv = require('minimist')(process.argv.slice(2), {
   'boolean': 'app'
 })
 
+var Travis = require('travis-ci')
+var travis = new Travis({
+  version: '2.0.0'
+})
+
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
  * @param {*} resolution - what to resolve the promise with
