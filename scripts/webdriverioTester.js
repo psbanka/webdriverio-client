@@ -100,17 +100,18 @@ const ns = {
         console.log('USER: ' + process.env['USER'])
         console.log('TRAVIS_BRANCH: ' + process.env['TRAVIS_BRANCH'])
         console.log('TRAVIS_COMMIT: ' + process.env['TRAVIS_COMMIT'])
-        console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
         console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
+        console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
         console.log('TRAVIS_BUILD_NUMBER: ' + process.env['TRAVIS_BUILD_NUMBER'])
-        travis.builds(process.env['TRAVIS_BUILD_ID']).get((err, res) => {
-          if (err) {
-            reject('Travis API Error: ' + JSON.stringify(err, null, 2))
-          } else {
-            console.log(JSON.stringify(res, null, 2))
-            resolve(configFile)
-          }
-        })
+        let repo = process.env['TRAVIS_REPO_SLUG']
+        if (repo) {
+          repo = repo.substring(0, repo.indexOf('/'))
+          configFile.username = repo
+          console.log('Username: ' + configFile.username)
+          resolve(configFile)
+        } else {
+          reject(configFile)
+        }
       } else {
         resolve(configFile)
       }
