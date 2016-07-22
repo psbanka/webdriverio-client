@@ -96,6 +96,13 @@ const ns = {
       console.log(`Your config.json file must contain a valid username and token.
       Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
     }
+    console.log('TRAVIS: ' + process.env['TRAVIS'])
+    console.log('TRAVIS_SECURE_ENV_VARS: ' + process.env['TRAVIS_SECURE_ENV_VARS'])
+    console.log('USER: ' + process.env['USER'])
+    console.log('TRAVIS_BRANCH: ' + process.env['TRAVIS_BRANCH'])
+    console.log('TRAVIS_COMMIT: ' + process.env['TRAVIS_COMMIT'])
+    console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
+    console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
 
     const cmd = [
       'curl',
