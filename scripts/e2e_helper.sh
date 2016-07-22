@@ -50,7 +50,7 @@ function do_remote_e2e_test {
   clean_screenshots
   create_config
   echo "webdriver server : $WEBDRIVERIO_SERVER"
-  ./node_modules/webdriverio-client/scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS || TEST_RESULT=1
+  ./node_modules/wdio-client/scripts/webdriverioTester.js --server $WEBDRIVERIO_SERVER $WEBDRIVERIO_SERVER_EXTRAS || TEST_RESULT=1
 }
 
 
