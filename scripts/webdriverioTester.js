@@ -94,10 +94,11 @@ const ns = {
         Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
         let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
         let user = repo[0]
+        let branch = process.env['TRAVIS_BRANCH']
         repo = repo[1]
         console.log('USER: ' + user)
         console.log('REPO: ' + repo)
-        const request = `curl https://api.github.com/repos/${user}/${repo}/git/commits/${process.env['TRAVIS_BRANCH']}`
+        const request = `curl https://api.github.com/repos/${user}/${repo}/git/commits/${branch}`
         this.exec(request).then((res) => {
           res = JSON.parse(res[0])
           console.log('RESULT: \n' + JSON.stringify(res, null, 2))
