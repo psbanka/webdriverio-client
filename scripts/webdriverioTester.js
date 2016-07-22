@@ -92,36 +92,23 @@ const ns = {
       if (configFile.username === 'travis') {
         console.log(`Your config.json file must contain a valid username and token.
         Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
-        console.log('TRAVIS: ' + process.env['TRAVIS'])
-        console.log('TRAVIS_SECURE_ENV_VARS: ' + process.env['TRAVIS_SECURE_ENV_VARS'])
-        console.log('USER: ' + process.env['USER'])
-        console.log('TRAVIS_BRANCH: ' + process.env['TRAVIS_BRANCH'])
-        console.log('TRAVIS_COMMIT: ' + process.env['TRAVIS_COMMIT'])
-        console.log('TRAVIS_REPO_SLUG: ' + process.env['TRAVIS_REPO_SLUG'])
-        console.log('TRAVIS_PULL_REQUEST: ' + process.env['TRAVIS_PULL_REQUEST'])
-        console.log('TRAVIS_BUILD_NUMBER: ' + process.env['TRAVIS_BUILD_NUMBER'])
         let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
         let user = repo[0]
         repo = repo[1]
         console.log('USER: ' + user)
         console.log('REPO: ' + repo)
-        const options = {
-          host: 'https://api.github.com',
-          path: `/repos/${user}/${repo}/git/commits/${process.env['TRAVIS_COMMIT']}`,
-          method: 'GET'
-        }
-        const req = http.request(options, (res) => {
-          res.on('data', (data) => {
-            console.log('RESULT: \n' + JSON.stringify(data, null, 2))
-            let author = data.author.email
-            console.log('author ' + author)
-            author = author.substring(0, author.indexOf('@'))
-            configFile.username = author
-            console.log('Authors Username' + configFile.username)
-            resolve(configFile)
-          })
+        const request = `curl https://api.github.com/repos/${user}/${repo}/git/commits/${process.env['TRAVIS_BRANCH']}`
+        this.exec(request).then((res) => {
+          res = JSON.parse(res[0])
+          console.log('RESULT: \n' + JSON.stringify(res, null, 2))
+          let author = res.author.email
+          console.log('author ' + author)
+          author = author.substring(0, author.indexOf('@'))
+          configFile.username = author
+          console.log('Authors Username' + configFile.username)
+          resolve(configFile)
         })
-        req.on('error', (err) => {
+        .catch((err) => {
           reject(err)
         })
       } else {
