@@ -99,6 +99,7 @@ const ns = {
         console.log('USER: ' + user)
         console.log('REPO: ' + repo)
         const request = `curl https://api.github.com/repos/${user}/${repo}/git/commits/${branch}`
+        console.log('Curl request on ' + request)
         this.exec(request).then((res) => {
           res = JSON.parse(res[0])
           console.log('RESULT: \n' + JSON.stringify(res, null, 2))
