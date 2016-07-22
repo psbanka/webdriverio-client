@@ -1,5 +1,5 @@
 {
-  "name": "webdriverio-client",
+  "name": "wdio-client",
   "version": "1.0.0",
   "description": "The client part of the e2e testing framework",
   "scripts": {
@@ -16,11 +16,6 @@
   "engines": {
     "node": ">= 5.0.0"
   },
-  "keywords": [
-    "webdriverio",
-    "e2e",
-    "testing"
-  ],
   "license": "MIT",
   "devDependencies": {
     "eslint": "3.1.1",
