@@ -26,7 +26,10 @@ const TOKEN_REVOKED = '~'
 
 const GitHubAPI = require('github')
 const github = new GitHubAPI({
-
+  debug: false,
+  protocol: 'https',
+  host: 'api.github.com',
+  timeout: 5000
 })
 
 /**
@@ -99,8 +102,6 @@ const ns = {
         let user = repo[0]
         let sha = process.env['TRAVIS_COMMIT']
         repo = repo[1]
-        console.log('USER: ' + user)
-        console.log('REPO: ' + repo)
         github.authenticate({
           type: 'oauth',
           token: process.env['ACCESS_TOKEN']
@@ -113,9 +114,7 @@ const ns = {
           if (err) {
             reject(err)
           } else {
-            console.log('RESULT: ' + JSON.stringify(res, null, 2))
             let author = res.committer.login
-            console.log('Authors username ' + author)
             configFile.username = author
             resolve(configFile)
           }
