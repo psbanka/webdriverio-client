@@ -24,7 +24,10 @@ const argv = require('minimist')(process.argv.slice(2), {
 })
 const TOKEN_REVOKED = '~'
 
-const http = require('http')
+const GitHubAPI = require('github')
+const github = new GitHubAPI({
+
+})
 
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
@@ -94,24 +97,28 @@ const ns = {
         Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
         let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
         let user = repo[0]
-        let commit = process.env['TRAVIS_COMMIT']
+        let sha = process.env['TRAVIS_COMMIT']
         repo = repo[1]
         console.log('USER: ' + user)
         console.log('REPO: ' + repo)
-        const request = `curl https://api.github.com/repos/${user}/${repo}/git/commits/${commit}`
-        console.log('Curl Request: ' + request)
-        this.exec(request).then((res) => {
-          res = JSON.parse(res[0])
-          console.log('RESULT: \n' + JSON.stringify(res, null, 2))
-          let author = res.author.email
-          console.log('author ' + author)
-          author = author.substring(0, author.indexOf('@'))
-          configFile.username = author
-          console.log('Authors Username' + configFile.username)
-          resolve(configFile)
+        github.authenticate({
+          type: 'oauth',
+          token: process.env['ACCESS_TOKEN']
         })
-        .catch((err) => {
-          reject(err)
+        github.repos.getCommit({
+          user,
+          repo,
+          sha
+        }, (err, res) => {
+          if (err) {
+            reject(err)
+          } else {
+            console.log('RESULT: ' + JSON.stringify(res, null, 2))
+            let author = res.committer.login
+            console.log('Authors username ' + author)
+            configFile.username = author
+            resolve(configFile)
+          }
         })
       } else {
         resolve(configFile)
