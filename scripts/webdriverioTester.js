@@ -24,6 +24,14 @@ const argv = require('minimist')(process.argv.slice(2), {
 })
 const TOKEN_REVOKED = '~'
 
+const GitHubAPI = require('github')
+const github = new GitHubAPI({
+  debug: false,
+  protocol: 'https',
+  host: 'api.github.com',
+  timeout: 5000
+})
+
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
  * @param {*} resolution - what to resolve the promise with
@@ -92,19 +100,24 @@ const ns = {
         Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
         let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
         let user = repo[0]
-        let commit = process.env['TRAVIS_COMMIT']
+        let sha = process.env['TRAVIS_COMMIT']
         repo = repo[1]
-        const request = `curl https://api.github.com/repos/${user}/${repo}/git/commits/${commit}`
-        console.log('Curl Request: ' + request)
-        this.exec(request).then((res) => {
-          res = JSON.parse(res[0])
-          let author = res.author.email
-          author = author.substring(0, author.indexOf('@'))
-          configFile.username = author
-          resolve(configFile)
+        github.authenticate({
+          type: 'oauth',
+          token: process.env['ACCESS_TOKEN']
         })
-        .catch((err) => {
-          reject(err)
+        github.repos.getCommit({
+          user,
+          repo,
+          sha
+        }, (err, res) => {
+          if (err) {
+            reject(err)
+          } else {
+            let author = res.committer.login
+            configFile.username = author
+            resolve(configFile)
+          }
         })
       } else {
         resolve(configFile)
