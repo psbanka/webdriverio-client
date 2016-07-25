@@ -85,6 +85,11 @@ const ns = {
     return this.tarUpAppAndTestsDirectory(extras)
   },
 
+  /**
+   * Extracts the config.json file from the tests/e2e directory. If it does not exist, it assumes it on TravisCI, and it attempts
+   * to extract the appropriate environment variables
+   * @returns {Promise} It will either resolve with the configFile or reject with an error
+   */
   extractConfig () {
     return new Promise((resolve, reject) => {
       const configDir = path.join(__dirname, '../../..', process.env['E2E_TESTS_DIR'], 'config.json')
