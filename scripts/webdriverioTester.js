@@ -109,7 +109,7 @@ const ns = {
         repo = repo[1]
         github.authenticate({
           type: 'oauth',
-          token: process.env['ACCESS_TOKEN']
+          token: process.env['RO_GH_TOKEN']
         })
         github.repos.getCommit({
           user,
