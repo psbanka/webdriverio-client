@@ -110,6 +110,7 @@ const ns = {
         sha
       }, (err, res) => {
         if (err) {
+          console.log('Error 4: ' + err)
           reject(err)
         } else {
           let author = res.committer.login
@@ -117,6 +118,7 @@ const ns = {
             author = res.author.login
           }
           configFile.username = author
+          console.log('Author ' + configFile)
           resolve(configFile)
         }
       })
@@ -177,7 +179,8 @@ const ns = {
       ]
       console.log('Running command: ' + cmd.join(' '))
 
-      return this.exec(cmd.join(' ')).then((res) => {
+      return this.exec(cmd.join(' '))
+      .then((res) => {
         const timestamp = res[0]
         this.exec()
         if (isNaN(timestamp)) {
@@ -185,6 +188,9 @@ const ns = {
         }
         console.log('Server Response/Timestamp: ' + timestamp)
         return timestamp
+      })
+      .catch((err) => {
+        throw new Error('The server responded with: Exec failed ' + err)
       })
     })
     .catch((err) => {
