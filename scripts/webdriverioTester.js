@@ -112,7 +112,6 @@ const ns = {
         if (err) {
           reject(err)
         } else {
-          console.log('RESULT: ' + JSON.stringify(res, null, 2))
           let author = res.committer.login
           if (author === WEB_FLOW_USERNAME && res.author.login) {
             author = res.author.login
@@ -140,8 +139,8 @@ const ns = {
       }
       _.defaults(configFile, {username: TRAVIS_USERNAME, token: TOKEN_REVOKED})
       if (configFile.username === TRAVIS_USERNAME) {
-        this.findUsername().then((configFile) => {
-          resolve(configFile)
+        this.findUsername(configFile).then((result) => {
+          resolve(result)
         })
         .catch((err) => {
           reject(err)
