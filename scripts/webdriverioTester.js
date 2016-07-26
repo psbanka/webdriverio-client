@@ -116,7 +116,6 @@ const ns = {
           repo,
           sha
         }, (err, res) => {
-          console.log(JSON.stringify(res, null, 2))
           if (err) {
             reject(err)
           } else {
