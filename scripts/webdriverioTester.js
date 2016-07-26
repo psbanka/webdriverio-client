@@ -23,14 +23,10 @@ const argv = require('minimist')(process.argv.slice(2), {
   'boolean': 'app'
 })
 const TOKEN_REVOKED = '~'
+const TRAVIS_USERNAME = 'travis'
+const WEB_FLOW_USERNAME = 'web-flow'
 
 const GitHubAPI = require('github')
-const github = new GitHubAPI({
-  debug: false,
-  protocol: 'https',
-  host: 'api.github.com',
-  timeout: 5000
-})
 
 /**
  * Helper for creating a promise (so I don't need to disable new-cap everywhere)
@@ -50,6 +46,12 @@ const ns = {
   init () {
     // this is on the object for eaiser mocking
     this.exec = Q.denodeify(exec)
+    this.github = new GitHubAPI({
+      debug: false,
+      protocol: 'https',
+      host: 'api.github.com',
+      timeout: 5000
+    })
     return this
   },
 
@@ -86,6 +88,42 @@ const ns = {
   },
 
   /**
+   * Finds the username of developer using the Travis commit number and the GitHub API
+   * @param {Object} configFile - Contains the username and token of the developer
+   * @returns {Promise} Either resolves with an updated version of the config file or rejects with an error
+   */
+  findUsername (configFile) {
+    return new Promise((resolve, reject) => {
+      console.log(`Your config.json file must contain a valid username and token.
+      Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
+      let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
+      let user = repo[0]
+      let sha = process.env['TRAVIS_COMMIT']
+      repo = repo[1]
+      this.github.authenticate({
+        type: 'oauth',
+        token: process.env['RO_GH_TOKEN']
+      })
+      this.github.repos.getCommit({
+        user,
+        repo,
+        sha
+      }, (err, res) => {
+        if (err) {
+          reject(err)
+        } else {
+          let author = res.committer.login
+          if (author === WEB_FLOW_USERNAME && res.author.login) {
+            author = res.author.login
+          }
+          configFile.username = author
+          resolve(configFile)
+        }
+      })
+    })
+  },
+
+  /**
    * Extracts the config.json file from the tests/e2e directory. If it does not exist, it assumes it on TravisCI, and it attempts
    * to extract the appropriate environment variables
    * @returns {Promise} It will either resolve with the configFile or reject with an error
@@ -99,33 +137,13 @@ const ns = {
       } catch (e) {
         console.log(`Since a config.json file does not exist, we are assuming you are on Travis\n\n`)
       }
-      _.defaults(configFile, {username: 'travis', token: TOKEN_REVOKED})
-      if (configFile.username === 'travis') {
-        console.log(`Your config.json file must contain a valid username and token.
-        Please visit http://wdio.bp.cyaninc.com to sign up to become an authorized third party developer for Ciena. \n\n`)
-        let repo = process.env['TRAVIS_REPO_SLUG'].split('/')
-        let user = repo[0]
-        let sha = process.env['TRAVIS_COMMIT']
-        repo = repo[1]
-        github.authenticate({
-          type: 'oauth',
-          token: process.env['RO_GH_TOKEN']
+      _.defaults(configFile, {username: TRAVIS_USERNAME, token: TOKEN_REVOKED})
+      if (configFile.username === TRAVIS_USERNAME) {
+        this.findUsername().then((configFile) => {
+          resolve(configFile)
         })
-        github.repos.getCommit({
-          user,
-          repo,
-          sha
-        }, (err, res) => {
-          if (err) {
-            reject(err)
-          } else {
-            let author = res.committer.login
-            if (author === 'web-flow' && res.author.login) {
-              author = res.author.login
-            }
-            configFile.username = author
-            resolve(configFile)
-          }
+        .catch((err) => {
+          reject(err)
         })
       } else {
         resolve(configFile)
