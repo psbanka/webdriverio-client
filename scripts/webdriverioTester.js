@@ -75,7 +75,6 @@ const ns = {
     return this.tarUpAppAndTestsDirectory(extras)
   },
 
-
   /**
    * Submit the tarball for test
    * @param {String} server - the protocol/host/port of the server
