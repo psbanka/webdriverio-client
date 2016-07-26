@@ -89,6 +89,7 @@ const ns = {
   submitTarball (server) {
     console.log('Submitting bundle to ' + server + ' for test...')
 
+<<<<<<< HEAD
     const cmd = [
       'curl',
       '-s',
@@ -108,6 +109,24 @@ const ns = {
       const timestamp = stdout.toString()
       console.log('TIMESTAMP: ' + timestamp)
       return timestamp
+=======
+      return this.exec(cmd.join(' '))
+      .then((res) => {
+        const timestamp = res[0]
+        this.exec()
+        if (isNaN(timestamp)) {
+          throw new Error('The server responded with: ' + timestamp)
+        }
+        console.log('Server Response/Timestamp: ' + timestamp)
+        return timestamp
+      })
+      .catch((err) => {
+        throw new Error('The server responded with: Exec failed ' + err)
+      })
+    })
+    .catch((err) => {
+      throw new Error('The server responded with: ' + err)
+>>>>>>> Added catch statement to exec
     })
   },
 
