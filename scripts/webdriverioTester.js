@@ -40,6 +40,12 @@ const ns = {
   init () {
     // this is on the object for eaiser mocking
     this.exec = Q.denodeify(exec)
+    this.github = new GitHubAPI({
+      debug: false,
+      protocol: 'https',
+      host: 'api.github.com',
+      timeout: 5000
+    })
     return this
   },
 
