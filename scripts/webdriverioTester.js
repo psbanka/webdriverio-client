@@ -112,6 +112,7 @@ const ns = {
         if (err) {
           reject(err)
         } else {
+          console.log('RESULT: ' + JSON.stringify(res, null, 2))
           let author = res.committer.login
           if (author === WEB_FLOW_USERNAME && res.author.login) {
             author = res.author.login
