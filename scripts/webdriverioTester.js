@@ -120,6 +120,9 @@ const ns = {
             reject(err)
           } else {
             let author = res.committer.login
+            if (author === 'web-flow' && res.author.login) {
+              author = res.author.login
+            }
             configFile.username = author
             resolve(configFile)
           }
