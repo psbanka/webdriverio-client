@@ -177,6 +177,9 @@ const ns = {
         '"tests-folder=' + process.env['E2E_TESTS_DIR'] + '"',
         server + '/'
       ]
+      if (server.toString() === 'localhost:3000') {
+        cmd.splice(2, 0, '-H "x-forwarded-for: 127.0.0.1"')
+      }
       console.log('Running command: ' + cmd.join(' '))
 
       return this.exec(cmd.join(' '))
@@ -184,17 +187,17 @@ const ns = {
         const timestamp = res[0]
         this.exec()
         if (isNaN(timestamp)) {
-          throw new Error('The server responded with: ' + timestamp)
+          throw timestamp
         }
         console.log('Server Response/Timestamp: ' + timestamp)
         return timestamp
       })
       .catch((err) => {
-        throw new Error('The server responded with: Exec failed ' + err)
+        throw err
       })
     })
     .catch((err) => {
-      throw new Error('The server responded with: ' + err)
+      throw new Error(err)
     })
   },
 
@@ -310,7 +313,7 @@ const ns = {
         }
       })
       .catch((err) => {
-        throw new Error('Error processing results ' + err)
+        throw new Error(err)
       })
   },
 
