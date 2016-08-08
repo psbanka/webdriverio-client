@@ -1,3 +1,6 @@
+# 2.0.1
+* Fixed headers for localhost testing
+
 # 2.0.0
 * Added support for backtracking usernames from commit id's
 * Added support for Travis commits with the new webdriverio-server
