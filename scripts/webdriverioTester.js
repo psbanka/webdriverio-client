@@ -58,8 +58,10 @@ const ns = {
    * @returns {Promise} resolved when done
    */
   tarUpAppAndTestsDirectory (extras) {
-    let cmd = ['tar', '--exclude="*.map"', '-czf', 'test.tar.gz',
-               process.env['E2E_TESTS_DIR'], process.env['BUILD_OUTPUT_DIR']]
+    let cmd = [
+      'tar', '--exclude="*.map"', '-czf', 'test.tar.gz',
+      process.env['E2E_TESTS_DIR'], process.env['BUILD_OUTPUT_DIR']
+    ]
     cmd = cmd.concat(extras)
 
     return this.exec(cmd.join(' '))
