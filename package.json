@@ -1,5 +1,5 @@
 {
-  "name": "wdio-client",
+  "name": "webdriverio-client",
   "version": "1.0.22",
   "description": "The client part of the e2e testing framework",
   "scripts": {
@@ -7,11 +7,11 @@
     "test": "npm run lint && node tests/dummy-test"
   },
   "bin": {
-    "wdio-client": "./scripts/e2e_helper.sh"
+    "webdriverio-client": "./scripts/e2e_helper.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:pastorsj/wdio-client.git"
+    "url": "git@github.com:ciena-blueplanet/webdriverio-client.git"
   },
   "engines": {
     "node": ">= 5.0.0"
